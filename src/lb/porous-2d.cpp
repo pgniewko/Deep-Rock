@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iomanip>
 
-// CODE PARTIALLY BASED ON:
+// THE FOLLOWING CODE IS PARTIALLY BASED ON:
 // https://github.com/FlowKit/palabos-examples/blob/master/showCases/poiseuille/poiseuille.cpp
 
 using namespace plb;
