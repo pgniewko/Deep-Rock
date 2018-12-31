@@ -87,7 +87,7 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi):
     i = ax.imshow(labeled_lattice, cmap=cm, interpolation='nearest')
     #i = ax.imshow(lattice_out, cmap=cm, interpolation='nearest')
 
-    path_ = "./tmp/"
+    path_ = "/Users/pawel/Projects/Deep-Rock/output/LATTICE/"
     plot_out = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".png"
     plt.savefig(plot_out)
     
@@ -96,16 +96,19 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi):
         for i in range(L-1,-1,-1):
             s += str( int(lattice_out[i][j]) ) + " "
 
-
-    nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".lattice"
-    fo = open(nout, 'w')
-    fo.write(s)
-    fo.close()
+    if len(perc_ids) >  0:
+        nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".lattice"
+        fo = open(nout, 'w')
+        fo.write(s)
+        fo.close()
 
 
     nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".out"
     fo = open(nout, 'w')
-    fo.write( str(phi) + "\n")
+    if len(perc_ids) >  0:
+        fo.write( str(phi) + " 1 \n")
+    else:
+        fo.write( str(phi) + " 0 \n")
     fo.close()
 
 
@@ -141,7 +144,4 @@ if __name__ == "__main__":
  
     perc_ids, f1, f2 = find_percolating_cluster(labeled_array, L)
     
-    if len(perc_ids) == 0:
-        pass
-    else:
-        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi)
+    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi)
