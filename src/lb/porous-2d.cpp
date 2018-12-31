@@ -176,7 +176,7 @@ typedef double T;
 //}
 
 /// Produce a GIF snapshot of the velocity-norm.
-void writeGif(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint iter)
+void writeGif(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint L, plint k, plint S, plint iter)
 {
     plint nx = lattice.getNx() / 3;
     plint ny = lattice.getNy();
@@ -184,21 +184,22 @@ void writeGif(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint iter)
         
     const plint imSize = 600;
 
+    string prefix = "u_"+std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S); 
     ImageWriter<T> imageWriter("leeloo");
-    imageWriter.writeScaledGif(createFileName("u", iter, 6),
+    imageWriter.writeScaledGif(createFileName(prefix, iter, 6),
                                *computeVelocityNorm(lattice, pm),
                                imSize, imSize );
 }
 
 /// Write the full velocity and the velocity-norm into a VTK file.
-void writeVTK(MultiBlockLattice2D<T,DESCRIPTOR>& lattice,
-              IncomprFlowParam<T> const& parameters, plint iter)
+void writeVTK(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint L, plint k, plint S, plint iter)
 {
-    T dx = parameters.getDeltaX();
-    T dt = parameters.getDeltaT();
-    VtkImageOutput2D<T> vtkOut(createFileName("vtk", iter, 6), dx);
-    vtkOut.writeData<float>(*computeVelocityNorm(lattice), "velocityNorm", dx/dt);
-    vtkOut.writeData<2,float>(*computeVelocity(lattice), "velocity", dx/dt);
+//    T dx = parameters.getDeltaX();
+//    T dt = parameters.getDeltaT();
+    string prefix = "vtk_"+std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S); 
+    VtkImageOutput2D<T> vtkOut(createFileName(prefix, iter, 6), 1.);
+    vtkOut.writeData<float>(*computeVelocityNorm(lattice), "velocityNorm", 1.);
+    vtkOut.writeData<2,float>(*computeVelocity(lattice), "velocity", 1.);
 }
 
 //T computeRMSerror ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice,
@@ -288,7 +289,7 @@ T computeTortuosity(MultiBlockLattice2D<T,DESCRIPTOR> &lattice )
 }
 
 
-T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T deltaP)
+T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T deltaP, plint L, plint k, plint S)
 {
         plint nx = lattice.getNx() / 3;
         plint ny = lattice.getNy();
@@ -300,9 +301,13 @@ T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T delt
         //pcout << meanU                           << " "; // average velocity
         //pcout << nu                              << " "; // Lattice viscosity nu
         //pcout << deltaP/(T)(n_ax-1)              << " "; // Grad P
-        pcout << nu*meanU / (deltaP/(T)(3*nx-1)) << " "; // Permeability
-        pcout << t                               << " \n"; // Tortuosity
+        //pcout << nu*meanU / (deltaP/(T)(3*nx-1)) << " "; // Permeability
+        //pcout << t                               << " \n"; // Tortuosity
 
+        string prefix = std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S); 
+        plb_ofstream ofile( ( global::directories().getVtkOutDir() + prefix + ".dat").c_str()  );
+        ofile << nu*meanU / (deltaP/(T)(3*nx-1)) << " " << t << "\n";
+        
         return meanU;
 }
 
@@ -323,6 +328,10 @@ int main(int argc, char* argv[]) {
     const plint nx_new    = atoi(argv[1]);
     const plint ny_new    = atoi(argv[2]);
     std::string fNameIn   = argv[3];
+    const plint L    = atoi(argv[4]);
+    const plint k    = atoi(argv[5]);
+    const plint S    = atoi(argv[6]);
+    
     const T omega = 1.0;
     const T deltaP    = 0.01;
     const T nu    = ((T)1/omega-0.5)/DESCRIPTOR<T>::invCs2;
@@ -335,8 +344,8 @@ int main(int argc, char* argv[]) {
     plb_ifstream geometryFile(fNameIn.c_str());
     if (!geometryFile.is_open()) 
     {
-                pcerr << "Error: could not open geometry file " << fNameIn << endl;
-                return -1;
+        pcerr << "Error: could not open geometry file " << fNameIn << endl;
+        return -1;
     }
     geometryFile >> geometry;
     
@@ -347,7 +356,7 @@ int main(int argc, char* argv[]) {
     
     util::ValueTracer<T> converge(1.0, 1000.0, 1.0e-5);
 
-    pcerr << "Simulation begins" << endl;
+    //pcerr << "Simulation begins" << endl;
     plint iT = 0;
 
     plint maxT_ = 500000;
@@ -364,7 +373,9 @@ int main(int argc, char* argv[]) {
         
         if (converge.hasConverged())
         {
-            computePermeability (lattice_new, nu, deltaP);
+            writeGif(lattice_new, L, k, S, iT);
+            writeVTK(lattice_new, L, k, S, iT);
+            computePermeability (lattice_new, nu, deltaP, L, k, S);
             break;
         }
 
