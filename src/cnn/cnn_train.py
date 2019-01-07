@@ -1,4 +1,7 @@
 #! /usr/bin/env python
+#
+# ./cnn_train.py ../../output/CNN/images.txt ../../output/CNN/values.txt
+#
 
 import sys
 import numpy as np
@@ -9,8 +12,10 @@ from keras.layers import Dense
 from keras.layers import Flatten, Dropout
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
+from keras.layers.convolutional import AveragePooling2D
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+
 
 def get_images(fin, Lx, Ly):
     data = np.loadtxt(fin, dtype=np.dtype(int))
@@ -37,7 +42,7 @@ def get_values(fin):
     return porosity, perc, kappa, tau
 
 
-def get_train_test_data(images, perc, values, perc_flag=True, col_=0, ts_=0.5, rs_=42):
+def get_train_test_data(images, perc, values, perc_flag=True, ts_=0.5, rs_=42):
 
     imgs_ = []
     vals_ = []
@@ -79,25 +84,33 @@ def create_nn(input_shape_):
 # 2. Make the architecture more efficient
 
     model = Sequential()
-    model.add(Conv2D(4,  kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
-    model.add(Conv2D(16, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(16, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+    #model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    #model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    #model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.1))
+    model.add(Dense(64, activation='relu'))
     model.add(Dense(1, activation='linear'))
 
     model.compile(loss='mean_squared_error',
-              optimizer=keras.optimizers.Adam(),
+              optimizer=keras.optimizers.Adam(lr=1e-4),
               metrics=['mse'])
 
     model.summary()
     return model
+
 
 if __name__ == "__main__":
 # https://towardsdatascience.com/a-simple-2d-cnn-for-mnist-digit-recognition-a998dbc1e79a
@@ -108,18 +121,19 @@ if __name__ == "__main__":
 # https://stats.stackexchange.com/questions/335836/cnn-architectures-for-regression
 # https://datascience.stackexchange.com/questions/33725/padding-in-keras-with-output-half-sized-input
 # https://datascienceplus.com/keras-regression-based-neural-networks/ 
+# http://cs231n.github.io/convolutional-networks/
+# https://blog.keras.io/how-convolutional-neural-networks-see-the-world.html
 
-
-    batch_size = 16
-    epochs = 200
+    batch_size = 64
+    epochs = 10
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
     porosity, perc, kappa, tau = get_values(sys.argv[2])
 
     input_shape = (img_rows, img_cols, 1)
-    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, col_=2, ts_=0.33)
-    
+    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=12345)
+
 
     cnn = create_nn( input_shape )
 
@@ -129,6 +143,8 @@ if __name__ == "__main__":
           verbose=1,
           validation_data=(x_test, y_test))  
     
+    cnn.save("./model/cnn-unet.epochs-%d.h5" % epochs )
+
 
     print(history.history.keys())
     # "Loss"
@@ -140,6 +156,7 @@ if __name__ == "__main__":
     plt.legend(['train', 'validation'], loc='upper left')
     plt.show()
 
+
     y_predicted = cnn.predict(x_test)
     plt.plot(y_test, y_predicted, 'o')
     plt.plot([-3,3],[-3,3],'--')
@@ -147,5 +164,3 @@ if __name__ == "__main__":
     plt.xlabel('Lattice-Boltzmann')
     plt.show()
 
-#TODO:
-# 1. Save the model
