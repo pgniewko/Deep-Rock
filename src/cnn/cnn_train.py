@@ -13,6 +13,7 @@ from keras.layers import Flatten, Dropout
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.layers.convolutional import AveragePooling2D
+from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
@@ -84,9 +85,9 @@ def create_nn(input_shape_):
 # 2. Make the architecture more efficient
 
     model = Sequential()
-    model.add(Conv2D(16, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu'))
-    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
     #model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -123,27 +124,34 @@ if __name__ == "__main__":
 # https://datascienceplus.com/keras-regression-based-neural-networks/ 
 # http://cs231n.github.io/convolutional-networks/
 # https://blog.keras.io/how-convolutional-neural-networks-see-the-world.html
+#https://machinelearningmastery.com/check-point-deep-learning-models-keras/
 
-    batch_size = 64
-    epochs = 10
+
+    batch_size = 32
+    epochs = 50
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
     porosity, perc, kappa, tau = get_values(sys.argv[2])
 
     input_shape = (img_rows, img_cols, 1)
-    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=12345)
+    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
 
 
     cnn = create_nn( input_shape )
+ 
+    filepath="./model/cnn.best.hdf5"
+    checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='max')
+    callbacks_list = [checkpoint]
 
     history = cnn.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=1,
+          callbacks=callbacks_list,
           validation_data=(x_test, y_test))  
     
-    cnn.save("./model/cnn-unet.epochs-%d.h5" % epochs )
+    cnn.save("./model/cnn.epochs-%d.hdf5" % epochs )
 
 
     print(history.history.keys())
