@@ -24,12 +24,9 @@ img_width = 64
 img_height = 64
 
 # the name of the layer we want to visualize
-# (see model definition at keras/applications/vgg16.py)
-layer_name = 'block5_conv1'
-layer_name = 'conv2d_4'
+layer_name = 'conv2d_5'
 
 # util function to convert a tensor into a valid image
-
 
 def deprocess_image(x):
     # normalize tensor: center on 0., ensure std is 0.1
@@ -61,7 +58,8 @@ input_img = model.input
 
 # get the symbolic outputs of each "key" layer (we gave them unique names).
 layer_dict = dict([(layer.name, layer) for layer in model.layers[0:]])
-#print(layer_dict)
+#print (layer_dict)
+filters_number = layer_dict[layer_name].filters
 
 def normalize(x):
     # utility function to normalize a tensor by its L2 norm
@@ -69,7 +67,7 @@ def normalize(x):
 
 
 kept_filters = []
-for filter_index in range(64):
+for filter_index in range(filters_number):
     # we only scan through the first 200 filters,
     # but there are actually 512 of them
     print('Processing filter %d' % filter_index)
@@ -122,8 +120,10 @@ for filter_index in range(64):
     end_time = time.time()
     print('Filter %d processed in %ds' % (filter_index, end_time - start_time))
 
-# we will stich the best 64 filters on a 8 x 8 grid.
+# we will stich the best n^2 filters on a n x n grid.
 n = 6
+n = min(n, int(np.sqrt(filters_number)))
+n = min(n, int(np.sqrt(len(kept_filters))))
 
 # the filters that have the highest loss are assumed to be better-looking.
 # we will only keep the top 64 filters.
@@ -149,4 +149,4 @@ for i in range(n):
             height_margin: height_margin + img_height, :] = img
 
 # save the result to disk
-save_img('%s_stitched_filters_%dx%d.png' % (layer_name, n, n), stitched_filters)
+save_img('./vis/%s_stitched_filters_%dx%d.png' % (layer_name, n, n), stitched_filters)
