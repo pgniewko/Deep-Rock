@@ -16,7 +16,7 @@ from keras.layers.convolutional import AveragePooling2D
 from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-
+from keras.models import load_model
 
 def get_images(fin, Lx, Ly):
     data = np.loadtxt(fin, dtype=np.dtype(int))
@@ -79,92 +79,23 @@ def get_train_test_data(images, perc, values, perc_flag=True, ts_=0.5, rs_=42):
 
     return (x_train, y_train), (x_test, y_test)
 
-def create_nn(input_shape_):
-# TODO:
-# 1. Add periodic padding
-# 2. Make the architecture more efficient
-
-    model = Sequential()
-    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
-    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
-    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.1))
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(1, activation='linear'))
-
-    model.compile(loss='mean_squared_error',
-              optimizer=keras.optimizers.Adam(lr=1e-4),
-              metrics=['mse'])
-
-    model.summary()
-    return model
-
-
 if __name__ == "__main__":
-# https://towardsdatascience.com/a-simple-2d-cnn-for-mnist-digit-recognition-a998dbc1e79a
-# https://www.kaggle.com/adityaecdrid/mnist-with-keras-for-beginners-99457
-# https://www.kaggle.com/anebzt/mnist-with-cnn-in-keras-detailed-explanation
-# https://jacobgil.github.io/deeplearning/filter-visualizations
-# https://towardsdatascience.com/deep-neural-networks-for-regression-problems-81321897ca33
-# https://stats.stackexchange.com/questions/335836/cnn-architectures-for-regression
-# https://datascience.stackexchange.com/questions/33725/padding-in-keras-with-output-half-sized-input
-# https://datascienceplus.com/keras-regression-based-neural-networks/ 
-# http://cs231n.github.io/convolutional-networks/
-# https://blog.keras.io/how-convolutional-neural-networks-see-the-world.html
-#https://machinelearningmastery.com/check-point-deep-learning-models-keras/
-
-
     batch_size = 32
-    epochs = 10
+    epochs = 5
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
     porosity, perc, kappa, tau = get_values(sys.argv[2])
 
     input_shape = (img_rows, img_cols, 1)
-    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
+    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.98, rs_=1342)
 
+    print len(x_train), len(y_train)
+    print len(x_test), len(y_test)
 
-    cnn = create_nn( input_shape )
- 
     filepath="./model/cnn.best.hdf5"
-    checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-    callbacks_list = [checkpoint]
-
-    history = cnn.fit(x_train, y_train,
-          batch_size=batch_size,
-          epochs=epochs,
-          verbose=1,
-          callbacks=callbacks_list,
-          validation_data=(x_test, y_test))  
+    cnn = load_model(filepath)
     
-    cnn.save("./model/cnn.epochs-%d.hdf5" % epochs )
-
-
-    print(history.history.keys())
-    # "Loss"
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'validation'], loc='upper left')
-    plt.show()
-
-
     y_predicted = cnn.predict(x_test)
     plt.plot(y_test, y_predicted, 'o')
     plt.plot([-3,3],[-3,3],'--')
@@ -172,3 +103,17 @@ if __name__ == "__main__":
     plt.xlabel('Lattice-Boltzmann')
     plt.show()
 
+    
+    history = cnn.fit(x_train, y_train,
+          batch_size=batch_size,
+          epochs=epochs,
+          verbose=1,
+          validation_data=(x_test, y_test))
+
+    
+    y_predicted = cnn.predict(x_test)
+    plt.plot(y_test, y_predicted, 'o')
+    plt.plot([-3,3],[-3,3],'--')
+    plt.ylabel('Predicted')
+    plt.xlabel('Lattice-Boltzmann')
+    plt.show()

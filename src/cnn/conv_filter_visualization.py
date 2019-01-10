@@ -24,7 +24,7 @@ img_width = 64
 img_height = 64
 
 # the name of the layer we want to visualize
-layer_name = 'conv2d_5'
+layer_name = 'conv2d_1'
 
 # util function to convert a tensor into a valid image
 
