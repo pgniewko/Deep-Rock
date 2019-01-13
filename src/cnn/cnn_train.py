@@ -17,6 +17,7 @@ from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
+from pbc import PeriodicPadding2D
 
 def get_images(fin, Lx, Ly):
     data = np.loadtxt(fin, dtype=np.dtype(int))
@@ -80,10 +81,6 @@ def get_train_test_data(images, perc, values, perc_flag=True, ts_=0.5, rs_=42):
     return (x_train, y_train), (x_test, y_test)
 
 def create_nn(input_shape_):
-# TODO:
-# 1. Add periodic padding
-# 2. Make the architecture more efficient
-
     model = Sequential()
     model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
     model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
@@ -112,6 +109,66 @@ def create_nn(input_shape_):
     model.summary()
     return model
 
+def create_nn_pbc(input_shape_):
+    model = Sequential()
+
+    #Layer No. 1
+    model.add(Conv2D(64, 
+                     kernel_size=(3, 3), 
+                     activation='relu', 
+                     input_shape=input_shape_,
+                     padding='valid'))
+    model.add(PeriodicPadding2D(padding=1))
+
+    # Layer No. 2
+    model.add(Conv2D(128, 
+                     kernel_size=(3, 3), 
+                     activation='relu',
+                     padding='valid'))
+    model.add(PeriodicPadding2D(padding=1))
+   
+    # Layer No. 3 
+    model.add(Conv2D(256, 
+                     kernel_size=(3, 3), 
+                     activation='relu',
+                     padding='valid'))
+    model.add(PeriodicPadding2D(padding=1))
+    model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    # Layer No. 4
+    model.add(Conv2D(64, 
+                     kernel_size=(3, 3), 
+                     activation='relu',
+                     padding='valid'))
+    model.add(PeriodicPadding2D(padding=1)) 
+    model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    # Layer No. 5
+    model.add(Conv2D(64, 
+                     kernel_size=(3, 3), 
+                     activation='relu',
+                     padding='valid'))
+    model.add(PeriodicPadding2D(padding=1)) 
+    model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+   
+    # Layer No. 6
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dropout(0.1))
+    
+    # Layer No. 7
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(1, activation='linear'))
+
+    model.compile(loss='mean_squared_error',
+              optimizer=keras.optimizers.Adam(lr=1e-4),
+              metrics=['mse'])
+
+    model.summary()
+    return model
 
 if __name__ == "__main__":
 # https://towardsdatascience.com/a-simple-2d-cnn-for-mnist-digit-recognition-a998dbc1e79a
@@ -138,7 +195,8 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
 
 
-    cnn = create_nn( input_shape )
+#    cnn = create_nn( input_shape )
+    cnn = create_nn_pbc( input_shape )
  
     filepath="./model/cnn.best.hdf5"
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
