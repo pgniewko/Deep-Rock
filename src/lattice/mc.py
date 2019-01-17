@@ -65,7 +65,8 @@ def find_percolating_cluster(labeled_lattice, L):
     else:
         return list(set(percolating_ids)), up_down, left_right
 
-def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi):
+
+def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"):
     labeled_lattice = labeled_lattice_.copy()
     lattice_out = np.zeros( [L,3*L] )
     for i in range(L):
@@ -87,7 +88,7 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi):
     i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation='nearest')
     #i = ax.imshow(lattice_out, cmap=cm, interpolation='nearest')
 
-    path_ = "/Users/pawel/Projects/Deep-Rock/output/LATTICE/"
+
     plot_out = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".png"
     plt.savefig(plot_out)
     
@@ -144,4 +145,6 @@ if __name__ == "__main__":
  
     perc_ids, f1, f2 = find_percolating_cluster(labeled_array, L)
     
-    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi)
+    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_"/Users/pawel/Desktop/LATTICE/")
+
+
