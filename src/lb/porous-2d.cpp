@@ -33,13 +33,30 @@ void writeGif(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint L, plint k, plin
                                imSize, imSize );
 }
 
-/// Write the full velocity and the velocity-norm into a VTK file.
-void writeVTK(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint L, plint k, plint S, plint iter)
+void saveFlowField(MultiBlockLattice2D<T,DESCRIPTOR>& lattice, plint L, plint k, plint S, plint iter)
 {
-    string prefix = "vtk_"+std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S) + "_"; 
-    VtkImageOutput2D<T> vtkOut(createFileName(prefix, iter, 6), 1.);
-    vtkOut.writeData<float>(*computeVelocityNorm(lattice), "velocityNorm", 1.);
-    vtkOut.writeData<2,float>(*computeVelocity(lattice), "velocity", 1.);
+    FileName fn = createFileName("ux_uy_"+std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S) + "_", iter, 6);
+    plb_ofstream ofile( ( global::directories().getVtkOutDir() + fn.get() + ".dat").c_str()  );
+   
+    Box2D domain = lattice.getBoundingBox();
+    std::auto_ptr< MultiScalarField2D< T > > UX = computeVelocityComponent (lattice, domain, 0 );
+    std::auto_ptr< MultiScalarField2D< T > > UY = computeVelocityComponent (lattice, domain, 1 );
+    std::auto_ptr< MultiScalarField2D< T > > U  = computeVelocityNorm (lattice, domain );
+
+    T u, ux, uy;
+
+    plint nx = lattice.getNx();
+    plint ny = lattice.getNy();
+    for (plint ix = 0; ix < nx; ix++)
+    {
+        for (plint iy = 0; iy < ny; iy++)
+        {
+            u  = U->get(ix, iy);
+            ux = UX->get(ix, iy);
+            uy = UY->get(ix, iy);
+            ofile << ix << " " << iy << " " << ux << " " << uy << " " << u << endl;
+        }
+    }
 }
 
 class PressureGradient 
@@ -132,7 +149,8 @@ T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T delt
 int main(int argc, char* argv[]) {
     plbInit(&argc, &argv);
 
-    global::directories().setOutputDir("/Users/pawel/Projects/Deep-Rock/output/LB/");
+    //global::directories().setOutputDir("/Users/pawel/Projects/Deep-Rock/output/LB/");
+    global::directories().setOutputDir("/Users/pawel/Desktop/LB/");
     
     const plint nx_new    = atoi(argv[1]);
     const plint ny_new    = atoi(argv[2]);
@@ -176,7 +194,7 @@ int main(int argc, char* argv[]) {
         if (converge.hasConverged())
         {
             writeGif(lattice_new, L, k, S, iT);
-            writeVTK(lattice_new, L, k, S, iT);
+            saveFlowField(lattice_new, L, k, S, iT);
             computePermeability (lattice_new, nu, deltaP, L, k, S);
             break;
         }
