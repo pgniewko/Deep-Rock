@@ -84,7 +84,7 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi):
     cmap_name = 'my_list'
     cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=3)
     fig, ax = plt.subplots()
-    i = ax.imshow(labeled_lattice, cmap=cm, interpolation='nearest')
+    i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation='nearest')
     #i = ax.imshow(lattice_out, cmap=cm, interpolation='nearest')
 
     path_ = "/Users/pawel/Projects/Deep-Rock/output/LATTICE/"
