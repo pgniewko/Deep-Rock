@@ -79,15 +79,13 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
                 lattice_out[i][j + L] = 0
             else:
                 labeled_lattice[i][j] = 2
-                lattice_out[i][j + L] = 1
+                lattice_out[i][j + L] = 0
 
     colors = ['yellow','blue','green']  # R -> G -> B
     cmap_name = 'my_list'
     cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=3)
     fig, ax = plt.subplots()
     i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation='nearest')
-    #i = ax.imshow(lattice_out, cmap=cm, interpolation='nearest')
-
 
     plot_out = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".png"
     plt.savefig(plot_out)
@@ -145,6 +143,6 @@ if __name__ == "__main__":
  
     perc_ids, f1, f2 = find_percolating_cluster(labeled_array, L)
     
-    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_"/Users/pawel/Desktop/LATTICE/")
+    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
 
 
