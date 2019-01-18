@@ -23,16 +23,46 @@ def get_lattice(L, k, phi):
     return lattice
 
 
+def process_pbc(labeled_lattice, L):
+    edge_sites = []
+    for i in range(L):
+        edge_sites.append( [0, i] )
+    for i in range(L):
+        edge_sites.append( [L-1, i] )
+       
+    num = len(edge_sites)
+
+    i = 0
+    while i < num:
+        xi, yi = edge_sites[i]
+        
+        i += 1
+
+        label_i = labeled_lattice[xi][yi]
+        if xi == 0:
+            label_j = labeled_lattice[L-1][yi]
+            if label_i != 0 and label_j != 0 and label_i != label_j:
+                mask = labeled_lattice == label_j
+                labeled_lattice[mask] = label_i
+                i = 0
+                continue
+        
+        if xi == L-1:
+            label_j = labeled_lattice[0][yi]
+            if label_i != 0 and label_j != 0 and label_i != label_j:
+                mask = labeled_lattice == label_j
+                labeled_lattice[mask] = label_i
+                i = 0
+                continue
+            
+        
+    return labeled_lattice
+
+
 def find_percolating_cluster(labeled_lattice, L):
-    top = []
-    bottom = []
     left = []
     right = []
-
     percolating_ids = []
-
-    up_down = False
-    left_right = False
 
     for i in range(L):
         if labeled_lattice[i][0] != 0:
@@ -41,29 +71,13 @@ def find_percolating_cluster(labeled_lattice, L):
         if labeled_lattice[i][L-1] != 0:
             right.append( labeled_lattice[i][L-1] )
         
-        if labeled_lattice[0][i] != 0:
-            bottom.append( labeled_lattice[0][i] )
-
-        if labeled_lattice[L-1][i] != 0:
-            top.append( labeled_lattice[L-1][i] )
-    
-    for el_1 in top:
-        for el_2 in bottom:
-            if el_1 == el_2:
-                percolating_ids.append( el_1 )
-                up_down = True
-    
     for el_1 in left:
         for el_2 in right:
             if el_1 == el_2:
                 percolating_ids.append( el_2 )
-                left_right = True
 
-    if up_down == True and left_right == False:
-        latt_rot90 = np.rot90(labeled_lattice)
-        return find_percolating_cluster(latt_rot90, L)
-    else:
-        return list(set(percolating_ids)), up_down, left_right
+
+    return list(set(percolating_ids))
 
 
 def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"):
@@ -79,7 +93,7 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
                 lattice_out[i][j + L] = 0
             else:
                 labeled_lattice[i][j] = 2
-                lattice_out[i][j + L] = 0
+                lattice_out[i][j + L] = 1
 
     colors = ['yellow','blue','green']  # R -> G -> B
     cmap_name = 'my_list'
@@ -136,13 +150,23 @@ if __name__ == "__main__":
     np.random.seed( seed_ )
     
     phi = np.random.uniform(0, 1)
-    lattice_2d = get_lattice(L, k,  phi)
-   
     s = generate_binary_structure(2,1)
-    labeled_array, num_features = label(lattice_2d, structure=s)
- 
-    perc_ids, f1, f2 = find_percolating_cluster(labeled_array, L)
     
-    save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
+    
+    lattice_2d = get_lattice(L, k,  phi)
+    latt_1 = lattice_2d.copy()
+    latt_2 = np.rot90( lattice_2d.copy() )
 
+    # PROCESS LATT 1
+    labeled_array, _ = label(latt_1, structure=s)
+    labeled_array = process_pbc(labeled_array, L)
+    perc_ids = find_percolating_cluster(labeled_array, L)
+    if len(perc_ids)  > 0:
+        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
+    else:
+        # PROCESS LATT 2
+        labeled_array, _ = label(latt_2, structure=s)
+        labeled_array = process_pbc(labeled_array, L)
+        perc_ids = find_percolating_cluster(labeled_array, L)
+        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
 
