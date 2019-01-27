@@ -17,6 +17,8 @@ from keras.callbacks import ModelCheckpoint
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
+import seaborn as sb
+
 from pbc import PeriodicPadding2D
 
 def get_images(fin, Lx, Ly):
@@ -64,7 +66,7 @@ def get_train_test_data(images, perc, values, perc_flag=True, ts_=0.5, rs_=42):
     X_train, X_test, y_train, y_test = train_test_split(imgs_, vals_, test_size=ts_, random_state=rs_)
 
     x_train = np.zeros( (len(X_train), 64,64,1) )
-    x_test  = np.zeros( (len(X_test), 64,64, 1) )
+    x_test  = np.zeros( (len(X_test), 64,64,1) )
     for i in range(len(X_train)):
         for j in range(64):
             for k in range(64):
@@ -107,7 +109,7 @@ def create_nn(input_shape_):
               metrics=['mse'])
 
     model.summary()
-    return model
+    return model, "cnn"
 
 def create_nn_pbc(input_shape_):
     model = Sequential()
@@ -168,10 +170,34 @@ def create_nn_pbc(input_shape_):
               metrics=['mse'])
 
     model.summary()
-    return model
+    return model, "cnn-pbc"
+
+
+def save_history(train_0, test_0, history, fname="history_loss.log"):
+    v_train_0 = train_0[0]
+    v_test_0  = test_0[0]
+    vals_train = history.history['loss']
+    vals_test  = history.history['val_loss'] 
+
+    vals_train.insert(0, v_train_0)
+    vals_test.insert(0, v_test_0)
+
+    fout = open(fname, 'w')
+    for i in range( len(vals_train) ):
+        fout.write( str(i) + " " + str(vals_train[i]) + " " + str(vals_test[i]) + "\n" ) 
+
+    fout.close()
+
+
+def save_preds(y_test, y_pred, fname='predictions.log'):
+    fout = open(fname, 'w')
+    for i, y_el in enumerate(y_test):
+        fout.write( str(y_el) + " " + str(y_pred[i][0]) + "\n" )
+
+    fout.close()
+
 
 if __name__ == "__main__":
-# https://towardsdatascience.com/a-simple-2d-cnn-for-mnist-digit-recognition-a998dbc1e79a
 # https://www.kaggle.com/adityaecdrid/mnist-with-keras-for-beginners-99457
 # https://www.kaggle.com/anebzt/mnist-with-cnn-in-keras-detailed-explanation
 # https://jacobgil.github.io/deeplearning/filter-visualizations
@@ -179,13 +205,11 @@ if __name__ == "__main__":
 # https://stats.stackexchange.com/questions/335836/cnn-architectures-for-regression
 # https://datascience.stackexchange.com/questions/33725/padding-in-keras-with-output-half-sized-input
 # https://datascienceplus.com/keras-regression-based-neural-networks/ 
-# http://cs231n.github.io/convolutional-networks/
-# https://blog.keras.io/how-convolutional-neural-networks-see-the-world.html
-#https://machinelearningmastery.com/check-point-deep-learning-models-keras/
+# https://machinelearningmastery.com/check-point-deep-learning-models-keras/
 
 
-    batch_size = 32
-    epochs = 10
+    batch_size = 128
+    epochs = 100 
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
@@ -195,13 +219,16 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
 
 
-#    cnn = create_nn( input_shape )
-    cnn = create_nn_pbc( input_shape )
+#    cnn, model_name = create_nn( input_shape )
+    cnn, model_name = create_nn_pbc( input_shape )
  
-    filepath="./model/cnn.best.hdf5"
+    filepath="./model/%s.best.hdf5" %(model_name)
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
     callbacks_list = [checkpoint]
 
+    history_train_epoch_0 = cnn.evaluate(x_train, y_train, batch_size=batch_size)
+    history_test_epoch_0 = cnn.evaluate(x_test, y_test, batch_size=batch_size)
+ 
     history = cnn.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=epochs,
@@ -209,10 +236,13 @@ if __name__ == "__main__":
           callbacks=callbacks_list,
           validation_data=(x_test, y_test))  
     
-    cnn.save("./model/cnn.epochs-%d.hdf5" % epochs )
+    cnn.save("./model/%s.epochs-%d.hdf5" % (model_name, epochs) )
+#    cnn.save_weights("./model/%s.epochs-%d.weights.h5" % (model_name, epochs))
 
+    f_history = "./output_data/%s-history_loss.log" %(model_name)
+    
+    save_history(history_train_epoch_0, history_test_epoch_0, history, f_history)
 
-    print(history.history.keys())
     # "Loss"
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
@@ -223,8 +253,13 @@ if __name__ == "__main__":
     plt.show()
 
 
-    y_predicted = cnn.predict(x_test)
-    plt.plot(y_test, y_predicted, 'o')
+
+    y_pred = cnn.predict(x_test)
+    
+    f_preds = "./output_data/%s-predictions.log" %(model_name)
+    save_preds(y_test, y_pred, f_preds)
+
+    plt.plot(y_test, y_pred, 'o')
     plt.plot([-3,3],[-3,3],'--')
     plt.ylabel('Predicted')
     plt.xlabel('Lattice-Boltzmann')
