@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.optimize import curve_fit
+from scipy.special import erfc
 
 def read_file(fn):
     data = np.loadtxt(fn)
@@ -13,7 +14,8 @@ def read_file(fn):
 
 
 def sigmoid(x, x0, k):
-     y = 1 / (1 + np.exp(k*(x-x0)))
+     #y = 1 / (1 + np.exp(k*(x-x0)))
+     y = erfc(k * (x - x0)) / 2
      return y
 
 
@@ -32,7 +34,6 @@ def estimate_params(x,y,N=1000):
     x0 = []
     for i in range(N):
         phi, perc = resample(x,y)
-        #phi,perc = x,y
         popt, pcov = curve_fit(sigmoid, phi, perc)
         x0.append( popt[0] )
         ks.append( popt[1] )
@@ -42,8 +43,7 @@ def estimate_params(x,y,N=1000):
 phi, perc = read_file(sys.argv[1])
 
 x0,x0_std,k0,k0_std = estimate_params(phi, perc, N=1000)
-print x0,x0_std,k0,k0_std
-phi_ = np.linspace(0.001,0.999,100)
+phi_ = np.linspace(0.001, 0.999, 100)
 perc_ = sigmoid(phi_, x0,k0)
 
 
