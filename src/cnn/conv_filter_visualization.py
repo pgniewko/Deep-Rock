@@ -3,12 +3,13 @@
 # usage:
 # python conv_filter_visualization.py ./model/cnn-v1.epochs-25.h5
 
-'''Visualization of the filters of VGG16, via gradient ascent in input space.
+#TODO:
+# 
+# Also filters visualisation:
+# top_layer = model.layers[0]
+# plt.imshow(top_layer.get_weights()[0][:, :, :, 0].squeeze(), cmap='gray')
+# Generally to see how the network abstracts the data
 
-This script can run on CPU in a few minutes.
-
-Results example: http://i.imgur.com/4nj4KjN.jpg
-'''
 from __future__ import print_function
 
 import sys
@@ -18,6 +19,8 @@ from keras.preprocessing.image import save_img
 from keras.applications import vgg16
 from keras import backend as K
 from keras.models import load_model
+
+from pbc import PeriodicPadding2D
 
 # dimensions of the generated pictures for each filter.
 img_width = 64
@@ -48,7 +51,7 @@ def deprocess_image(x):
 
 # build the VGG16 network with ImageNet weights
 #model = vgg16.VGG16(weights='imagenet', include_top=False)
-model = load_model(sys.argv[1])
+model = load_model(sys.argv[1], custom_objects={'PeriodicPadding2D': PeriodicPadding2D})
 print('Model loaded.')
 
 model.summary()
