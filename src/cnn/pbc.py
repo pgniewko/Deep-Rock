@@ -1,4 +1,5 @@
 from keras.layers import concatenate, Layer, InputSpec
+
 def periodic_padding(image, padding=1):
     '''
     Create a periodic padding (wrap) around the image, to emulate periodic boundary conditions
