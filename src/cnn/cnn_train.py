@@ -209,7 +209,7 @@ if __name__ == "__main__":
 
 
     batch_size = 128
-    epochs = 100 
+    epochs = 50 
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
@@ -239,29 +239,33 @@ if __name__ == "__main__":
     cnn.save("./model/%s.epochs-%d.hdf5" % (model_name, epochs) )
 #    cnn.save_weights("./model/%s.epochs-%d.weights.h5" % (model_name, epochs))
 
-    f_history = "./output_data/%s-history_loss.log" %(model_name)
-    
-    save_history(history_train_epoch_0, history_test_epoch_0, history, f_history)
-
-    # "Loss"
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'validation'], loc='upper left')
-    plt.show()
-
-
-
     y_pred = cnn.predict(x_test)
+    
+    # Save data #
+    f_history = "./output_data/%s-history_loss.log" %(model_name)
+    save_history(history_train_epoch_0, history_test_epoch_0, history, f_history)
     
     f_preds = "./output_data/%s-predictions.log" %(model_name)
     save_preds(y_test, y_pred, f_preds)
+ 
+    
+    # Plot data - if flat True
+    plot_flag = False
+    if plot_flag:
+        # "Loss"
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'validation'], loc='upper left')
+        plt.show()
 
-    plt.plot(y_test, y_pred, 'o')
-    plt.plot([-3,3],[-3,3],'--')
-    plt.ylabel('Predicted')
-    plt.xlabel('Lattice-Boltzmann')
-    plt.show()
+        # Permeability
+        plt.plot(y_test, y_pred, 'o')
+        plt.plot([-3,3],[-3,3],'--')
+        plt.ylabel('Predicted')
+        plt.xlabel('Lattice-Boltzmann')
+        plt.show()
+
 
