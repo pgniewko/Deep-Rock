@@ -54,8 +54,7 @@ def process_pbc(labeled_lattice, L):
                 labeled_lattice[mask] = label_i
                 i = 0
                 continue
-            
-        
+
     return labeled_lattice
 
 
@@ -147,11 +146,12 @@ if __name__ == "__main__":
     L = int(sys.argv[1])
     k = int(sys.argv[2])
     seed_ = int(sys.argv[3])
+    out_path = sys.argv[4]
+
     np.random.seed( seed_ )
     
     phi = np.random.uniform(0, 1)
-    s = generate_binary_structure(2,1)
-    
+    s = generate_binary_structure(2, 1)
     
     lattice_2d = get_lattice(L, k,  phi)
     latt_1 = lattice_2d.copy()
@@ -162,11 +162,11 @@ if __name__ == "__main__":
     labeled_array = process_pbc(labeled_array, L)
     perc_ids = find_percolating_cluster(labeled_array, L)
     if len(perc_ids)  > 0:
-        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
+        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_=out_path)
     else:
         # PROCESS LATT 2
         labeled_array, _ = label(latt_2, structure=s)
         labeled_array = process_pbc(labeled_array, L)
         perc_ids = find_percolating_cluster(labeled_array, L)
-        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_="/Users/pawel/Desktop/LATTICE/")
+        save_lattice(labeled_array, L, k, seed_, perc_ids, 1 - phi, path_=out_path)
 

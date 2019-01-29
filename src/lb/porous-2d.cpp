@@ -140,7 +140,7 @@ T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T delt
         //pcout << t                               << " \n"; // Tortuosity
 
         string prefix = std::to_string(L) + "_" + std::to_string(k) + "_" + std::to_string(S); 
-        plb_ofstream ofile( ( global::directories().getVtkOutDir() + prefix + ".dat").c_str()  );
+        plb_ofstream ofile( ( global::directories().getVtkOutDir() + "/" + prefix + ".dat").c_str()  );
         ofile << nu*meanU / (deltaP/(T)(3*nx-1)) << " " << t << "\n";
         
         return meanU;
@@ -149,9 +149,6 @@ T computePermeability ( MultiBlockLattice2D<T,DESCRIPTOR>& lattice, T nu, T delt
 int main(int argc, char* argv[]) {
     plbInit(&argc, &argv);
 
-    //global::directories().setOutputDir("/Users/pawel/Projects/Deep-Rock/output/LB/");
-    global::directories().setOutputDir("/Users/pawel/Desktop/LB/");
-    
     const plint nx_new    = atoi(argv[1]);
     const plint ny_new    = atoi(argv[2]);
     std::string fNameIn   = argv[3];
@@ -159,9 +156,12 @@ int main(int argc, char* argv[]) {
     const plint k    = atoi(argv[5]);
     const plint S    = atoi(argv[6]);
     
-    const T omega = 1.0;
-    const T deltaP    = 0.01;
-    const T nu    = ((T)1/omega-0.5)/DESCRIPTOR<T>::invCs2;
+    std::string opath = argv[7];
+    global::directories().setOutputDir(opath);
+    
+    const T omega  = 1.0;
+    const T deltaP = 0.01;
+    const T nu     = ((T)1/omega-0.5)/DESCRIPTOR<T>::invCs2;
     
     MultiBlockLattice2D<T,DESCRIPTOR> lattice_new(nx_new, ny_new, new MRTdynamics<T,DESCRIPTOR> ( omega ) );
     
