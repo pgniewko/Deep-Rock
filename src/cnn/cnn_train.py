@@ -142,20 +142,19 @@ def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
                      kernel_size=(3, 3), 
                      init=init_flag,
                      padding='valid'))
-    if batch_norm:              
+    if batch_norm:                 
         model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    if not batch_norm:
+        model.add(Dropout(0.25))
 
     # Layer No. 4
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
                      init=init_flag,
                      padding='valid'))
-    if batch_norm:              
-        model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1)) 
     model.add(AveragePooling2D(pool_size=(2, 2)))
@@ -166,8 +165,6 @@ def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
                      kernel_size=(3, 3), 
                      init=init_flag,
                      padding='valid'))
-    if batch_norm:                 
-        model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1)) 
     model.add(AveragePooling2D(pool_size=(2, 2)))
@@ -182,6 +179,7 @@ def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
     # Layer No. 7
     model.add(Dense(64, init=init_flag))
     model.add(Activation('relu'))
+    model.add(Dropout(0.05))
     model.add(Dense(1, init=init_flag))
     model.add(Activation('linear'))
 
