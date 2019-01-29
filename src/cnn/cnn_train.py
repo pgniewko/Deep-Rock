@@ -10,6 +10,8 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten, Dropout
+from keras.layers import BatchNormalization
+from keras.layers import Activation
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.layers.convolutional import AveragePooling2D
@@ -111,29 +113,38 @@ def create_nn(input_shape_):
     model.summary()
     return model, "cnn"
 
-def create_nn_pbc(input_shape_):
+def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
     model = Sequential()
 
     #Layer No. 1
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
-                     activation='relu', 
                      input_shape=input_shape_,
+                     init=init_flag,
                      padding='valid'))
+    if batch_norm:                 
+        model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1))
 
     # Layer No. 2
     model.add(Conv2D(128, 
                      kernel_size=(3, 3), 
-                     activation='relu',
+                     init=init_flag,
                      padding='valid'))
+    if batch_norm:                 
+        model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1))
    
     # Layer No. 3 
     model.add(Conv2D(256, 
                      kernel_size=(3, 3), 
-                     activation='relu',
+                     init=init_flag,
                      padding='valid'))
+    if batch_norm:              
+        model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -141,8 +152,11 @@ def create_nn_pbc(input_shape_):
     # Layer No. 4
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
-                     activation='relu',
+                     init=init_flag,
                      padding='valid'))
+    if batch_norm:              
+        model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1)) 
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
@@ -150,27 +164,37 @@ def create_nn_pbc(input_shape_):
     # Layer No. 5
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
-                     activation='relu',
+                     init=init_flag,
                      padding='valid'))
+    if batch_norm:                 
+        model.add(BatchNormalization())
+    model.add(Activation('relu'))
     model.add(PeriodicPadding2D(padding=1)) 
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
    
     # Layer No. 6
     model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(64, init=init_flag))
+    model.add(Activation('relu'))
     model.add(Dropout(0.1))
     
     # Layer No. 7
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(1, activation='linear'))
+    model.add(Dense(64, init=init_flag))
+    model.add(Activation('relu'))
+    model.add(Dense(1, init=init_flag))
+    model.add(Activation('linear'))
 
     model.compile(loss='mean_squared_error',
               optimizer=keras.optimizers.Adam(lr=1e-4),
               metrics=['mse'])
 
     model.summary()
-    return model, "cnn-pbc"
+    
+    if batch_norm:              
+        return model, "cnn-pbc-bn"
+    else:
+        return model, "cnn-pbc"
 
 
 def save_history(train_0, test_0, history, fname="history_loss.log"):
@@ -208,8 +232,8 @@ if __name__ == "__main__":
 # https://machinelearningmastery.com/check-point-deep-learning-models-keras/
 
 
-    batch_size = 128
-    epochs = 50 
+    batch_size = 32
+    epochs = 25 
     # input image dimensions
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
@@ -219,9 +243,9 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
 
 
-#    cnn, model_name = create_nn( input_shape )
-    cnn, model_name = create_nn_pbc( input_shape )
- 
+#    cnn, model_name = create_nn(input_shape)
+    cnn, model_name = create_nn_pbc(input_shape, batch_norm=True)
+
     filepath="./model/%s.best.hdf5" %(model_name)
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
     callbacks_list = [checkpoint]
@@ -237,8 +261,6 @@ if __name__ == "__main__":
           validation_data=(x_test, y_test))  
     
     cnn.save("./model/%s.epochs-%d.hdf5" % (model_name, epochs) )
-#    cnn.save_weights("./model/%s.epochs-%d.weights.h5" % (model_name, epochs))
-
     y_pred = cnn.predict(x_test)
     
     # Save data #
