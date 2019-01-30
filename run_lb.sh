@@ -2,23 +2,25 @@
 
 LB_PATH="/Users/pawel/Desktop/LB/"
 SF="./src/lb/porous-2d"
+L=64
+LxLxL=192
+ka=2
+kb=4
 
 for INDEX in `seq 1 10000`; do
+    FILE="/Users/pawel/Projects/Deep-Rock/output/LATTICE/"$L"_"$ka"_"$INDEX".lattice"
+    if [ -f "$FILE" ]
+    then
+        $SF $LxLxL $L $FILE $L $ka $INDEX $LB_PATH
+    else
+        echo 0.0 0.0 > $LB_PATH"/"$L"_"$ka"_"$INDEX".dat"
+    fi
 
-  FILE="/Users/pawel/Projects/Deep-Rock/output/LATTICE/64_2_"$INDEX".lattice"
-  if [ -f "$FILE" ]
-  then
-    $SF 192 64 $FILE 64 2 $INDEX $LB_PATH
-  else
-    echo 0.0 0.0 > $LB_PATH"/64_2_"$INDEX".dat"
-  fi
-
-  FILE="/Users/pawel/Projects/Deep-Rock/output/LATTICE/64_4_"$INDEX".lattice"
-  if [ -f "$FILE" ]
-  then
-    $SF 192 64 $FILE 64 4 $INDEX $LB_PATH
-  else
-    echo 0.0 0.0 > $LB_PATH"/64_4_"$INDEX".dat"
-  fi
-
+    FILE="/Users/pawel/Projects/Deep-Rock/output/LATTICE/"$L"_"$kb"_"$INDEX".lattice"
+    if [ -f "$FILE" ]
+    then
+        $SF $LxLxL $L $FILE $L $kb $INDEX $LB_PATH
+    else
+        echo 0.0 0.0 > $LB_PATH"/"$L"_"$kb"_"$INDEX".dat"
+    fi
 done

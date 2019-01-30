@@ -23,8 +23,8 @@ if __name__ == "__main__":
 
     Xo += 0.5
     Yo += 0.5
-    LX = 64
-    LY = 192
+    LX = int(sys.argv[2])
+    LY = 3*LX
 
     Y, X = np.mgrid[0:LX, 0:LX]
 
@@ -41,7 +41,8 @@ if __name__ == "__main__":
             V[yi][xi-LX] = UY[i]
     
         if UX[i] == 0 and UY[i] == 0:
-            mask[63-yi][xi-LX] = True
+            mask[(LX-1)-yi][xi-LX] = True
+            mask[(LX-1)-yi][xi-LX] = True
 
     speed = np.sqrt(U*U + V*V)
     lw = 5*speed / speed.max()
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     ax1.streamplot(X, Y, U, V, density=5, arrowsize=0.01, linewidth=lw)
 
-    ax1.imshow(~mask, extent=(0-0.5, 64-0.5, 0-0.5, 64-0.5), alpha=0.45,
+    ax1.imshow(~mask, extent=(0-0.5, LX-0.5, 0-0.5, LX-0.5), alpha=0.45,
                 interpolation='nearest', cmap='gray', aspect='auto')
 
     ax1.set_aspect('equal')

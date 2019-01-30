@@ -14,6 +14,7 @@ def kozeny_carman(x, x_c, gamma, C):
     y = np.log10(C) + gamma * np.log10(dx) + 2.0 * np.log10(x/(1-x))
     return y
 
+
 def mse(x, logk, x_c, gamma, C):
     N = 0
     mse = 0.0
@@ -31,7 +32,7 @@ indcs = perc == 1
 phi=phi[indcs]
 k=k[indcs]
 
-indcs = phi <= 0.95
+indcs = phi <=0.95
 phi=phi[indcs]
 k=k[indcs]
 
