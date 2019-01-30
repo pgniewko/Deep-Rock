@@ -8,6 +8,8 @@ from scipy import stats
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
+import seaborn as sns
+sns.set(style="darkgrid")
 
 def kozeny_carman(x, x_c, gamma, C):
     dx = x - x_c
@@ -46,17 +48,16 @@ k_fit = 10**log_k_fit
 
 print "MSE=",mse(phi, log10k, popt[0], popt[1], popt[2])
 
-fig, ax = plt.subplots(1, 1, sharey=True, figsize=(6,6) )
+fig, ax = plt.subplots(1, 1, sharey=True, figsize=(7,7) )
 ax.set_yscale("log", nonposy='clip')
 
-plt.plot(phi, k, '+', color='darkblue')
-plt.plot(x,k_fit)
+plt.plot(phi, k, '+', color='green')
+plt.plot(x,k_fit,'--',color='darkblue',lw=3)
+plt.xlabel('Porosity', fontsize=20)
+plt.ylabel(r'Permeability', fontsize=20, labelpad=0)
+plt.tick_params(axis='both', which='major', labelsize=15)
+plt.tick_params(axis='both', which='minor', labelsize=12)
 
 plt.show()
-
-print popt
-print pcov
-
-
 
 

@@ -1,4 +1,7 @@
 #! /usr/bin/env python
+#
+# usage:
+# ./plot_streamlines.py file_name lattice_size
 
 import sys
 import numpy
