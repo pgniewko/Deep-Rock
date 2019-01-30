@@ -11,7 +11,6 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten, Dropout
 from keras.layers import BatchNormalization
-from keras.layers import Activation
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.layers.convolutional import AveragePooling2D
@@ -113,75 +112,71 @@ def create_nn(input_shape_):
     model.summary()
     return model, "cnn"
 
-def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
+def create_nn_pbc(input_shape_, init_flag='normal'):
     model = Sequential()
 
+    #Layer No. 0
+    model.add(PeriodicPadding2D(padding=1, input_shape=input_shape_,))
+    
     #Layer No. 1
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
-                     input_shape=input_shape_,
+#                     input_shape=input_shape_,
                      init=init_flag,
-                     padding='valid'))
-    if batch_norm:                 
-        model.add(BatchNormalization())
-    model.add(Activation('relu'))
+                     padding='valid'),
+                     activation='relu')
     model.add(PeriodicPadding2D(padding=1))
 
     # Layer No. 2
     model.add(Conv2D(128, 
                      kernel_size=(3, 3), 
                      init=init_flag,
-                     padding='valid'))
-    if batch_norm:                 
-        model.add(BatchNormalization())
-    model.add(Activation('relu'))
+                     padding='valid',
+                     activation='relu'))
     model.add(PeriodicPadding2D(padding=1))
    
     # Layer No. 3 
     model.add(Conv2D(256, 
                      kernel_size=(3, 3), 
                      init=init_flag,
-                     padding='valid'))
-    if batch_norm:                 
-        model.add(BatchNormalization())
-    model.add(Activation('relu'))
-    model.add(PeriodicPadding2D(padding=1))
+                     padding='valid',
+                     activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    if not batch_norm:
-        model.add(Dropout(0.25))
+    model.add(PeriodicPadding2D(padding=1))
+    model.add(Dropout(0.25))
+
 
     # Layer No. 4
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
                      init=init_flag,
-                     padding='valid'))
-    model.add(Activation('relu'))
-    model.add(PeriodicPadding2D(padding=1)) 
+                     padding='valid',
+                     activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(PeriodicPadding2D(padding=1)) 
     model.add(Dropout(0.25))
 
     # Layer No. 5
     model.add(Conv2D(64, 
                      kernel_size=(3, 3), 
                      init=init_flag,
-                     padding='valid'))
-    model.add(Activation('relu'))
-    model.add(PeriodicPadding2D(padding=1)) 
+                     padding='valid',
+                     activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
+    model.add(PeriodicPadding2D(padding=1)) 
     model.add(Dropout(0.25))
    
     # Layer No. 6
     model.add(Flatten())
-    model.add(Dense(64, init=init_flag))
-    model.add(Activation('relu'))
+    model.add(Dense(64, init=init_flag, activation='relu'))
     model.add(Dropout(0.1))
     
     # Layer No. 7
-    model.add(Dense(64, init=init_flag))
-    model.add(Activation('relu'))
+    model.add(Dense(64, init=init_flag, activation='relu'))
     model.add(Dropout(0.05))
-    model.add(Dense(1, init=init_flag))
-    model.add(Activation('linear'))
+
+    # Layer No. 8
+    model.add(Dense(1, init=init_flag, activation='linear'))
 
     model.compile(loss='mean_squared_error',
               optimizer=keras.optimizers.Adam(lr=1e-4),
@@ -189,10 +184,8 @@ def create_nn_pbc(input_shape_, batch_norm=False, init_flag='normal'):
 
     model.summary()
     
-    if batch_norm:              
-        return model, "cnn-pbc-bn"
-    else:
-        return model, "cnn-pbc"
+    return model, "cnn-pbc"
+
 
 
 def save_history(train_0, test_0, history, fname="history_loss.log"):
