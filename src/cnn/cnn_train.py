@@ -88,21 +88,19 @@ def create_nn(input_shape_):
     model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
     model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
     model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
     model.add(Dropout(0.1))
     model.add(Dense(64, activation='relu'))
+    model.add(Dropout(0.05))
     model.add(Dense(1, activation='linear'))
 
     model.compile(loss='mean_squared_error',
@@ -223,8 +221,7 @@ if __name__ == "__main__":
 
 
     batch_size = 32
-    epochs = 25 
-    # input image dimensions
+    epochs = 150 
     img_rows, img_cols = 64, 64
     images = get_images(sys.argv[1], img_rows, img_cols)
     porosity, perc, kappa, tau = get_values(sys.argv[2])
