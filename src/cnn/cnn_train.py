@@ -163,7 +163,6 @@ def create_nn_pbc(input_shape_, init_flag='normal'):
                      padding='valid',
                      activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(PeriodicPadding2D(padding=1)) 
     model.add(Dropout(0.25))
    
     # Layer No. 6
