@@ -123,8 +123,8 @@ def create_nn_pbc(input_shape_, init_flag='normal'):
                      kernel_size=(3, 3), 
 #                     input_shape=input_shape_,
                      init=init_flag,
-                     padding='valid'),
-                     activation='relu')
+                     padding='valid',
+                     activation='relu'))
     model.add(PeriodicPadding2D(padding=1))
 
     # Layer No. 2
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
 
 #    cnn, model_name = create_nn(input_shape)
-    cnn, model_name = create_nn_pbc(input_shape, batch_norm=True)
+    cnn, model_name = create_nn_pbc(input_shape)
 
     filepath="./model/%s.best.hdf5" %(model_name)
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
