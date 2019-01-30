@@ -94,7 +94,11 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
                 labeled_lattice[i][j] = 2
                 lattice_out[i][j + L] = 1
 
-    colors = ['yellow','blue','green']  # R -> G -> B
+    if labeled_lattice.max() == 2:
+        colors = ['yellow','blue','green']
+    else:
+        colors = ['yellow','blue']
+
     cmap_name = 'my_list'
     cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=3)
     fig, ax = plt.subplots()
