@@ -23,7 +23,7 @@ plt.tick_params(axis='both', which='major', labelsize=15)
 plt.tick_params(axis='both', which='minor', labelsize=12)
 
 plt.plot(kappa_LB, kappa_CNN, '+', color='green')
-plt.plot([1e-3,1e3],[1e-3,1e3],'--', lw=3, color='darkblue')
+#plt.plot([1e-3,1e3],[1e-3,1e3],'--', lw=3, color='darkblue')
 
 plt.xlabel('lattice-Boltzmann', fontsize=20)
 plt.ylabel('ConvNet', fontsize=20, labelpad=-8)

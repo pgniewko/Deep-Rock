@@ -85,22 +85,22 @@ def get_train_test_data(images, perc, values, perc_flag=True, ts_=0.5, rs_=42):
 
 def create_nn(input_shape_):
     model = Sequential()
-    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
+    model.add(Conv2D(64,  kernel_size=(3, 3), activation='relu', input_shape=input_shape_))
     model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
-    model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Dropout(0.20))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.15))
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.15))
     model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.05))
+    model.add(Dropout(0.10))
     model.add(Dense(1, activation='linear'))
 
     model.compile(loss='mean_squared_error',
@@ -114,26 +114,25 @@ def create_nn_pbc(input_shape_):
     model = Sequential()
 
     #Layer No. 0
-    model.add(PeriodicPadding2D(padding=1, input_shape=input_shape_,))
+    model.add(PeriodicPadding2D(padding=3, input_shape=input_shape_,))
     
     #Layer No. 1
-    model.add(Conv2D(64, 
-                     kernel_size=(3, 3), 
-#                     input_shape=input_shape_,
+    model.add(Conv2D(128, 
+                     kernel_size=(7, 7),
                      padding='valid',
                      activation='relu'))
-    model.add(PeriodicPadding2D(padding=1))
+    model.add(PeriodicPadding2D(padding=2))
 
     # Layer No. 2
     model.add(Conv2D(128, 
-                     kernel_size=(3, 3), 
+                     kernel_size=(5, 5),
                      padding='valid',
                      activation='relu'))
-    model.add(PeriodicPadding2D(padding=1))
+    model.add(PeriodicPadding2D(padding=2))
    
     # Layer No. 3 
     model.add(Conv2D(256, 
-                     kernel_size=(3, 3), 
+                     kernel_size=(5, 5),
                      padding='valid',
                      activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
@@ -142,30 +141,30 @@ def create_nn_pbc(input_shape_):
 
 
     # Layer No. 4
-    model.add(Conv2D(64, 
+    model.add(Conv2D(128, 
                      kernel_size=(3, 3), 
                      padding='valid',
                      activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
     model.add(PeriodicPadding2D(padding=1)) 
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.20))
 
     # Layer No. 5
-    model.add(Conv2D(64, 
+    model.add(Conv2D(128, 
                      kernel_size=(3, 3), 
                      padding='valid',
                      activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.15))
    
     # Layer No. 6
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.15))
     
     # Layer No. 7
     model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.05))
+    model.add(Dropout(0.10))
 
     # Layer No. 8
     model.add(Dense(1, activation='linear'))
@@ -216,17 +215,19 @@ if __name__ == "__main__":
 
 
     batch_size = 32
-    epochs = 150 
+    epochs = 100 
     img_rows, img_cols = 64, 64
-    images = get_images(sys.argv[1], img_rows, img_cols)
-    porosity, perc, kappa, tau = get_values(sys.argv[2])
+    pbc_flag_ = int(sys.argv[1])
+    images = get_images(sys.argv[2], img_rows, img_cols)
+    porosity, perc, kappa, tau = get_values(sys.argv[3])
 
     input_shape = (img_rows, img_cols, 1)
-    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.5, rs_=1342)
+    (x_train, y_train), (x_test, y_test) = get_train_test_data(images, perc, kappa, ts_=0.25, rs_=1342)
 
-
-#    cnn, model_name = create_nn(input_shape)
-    cnn, model_name = create_nn_pbc(input_shape)
+    if pbc_flag_:
+        cnn, model_name = create_nn_pbc(input_shape)
+    else:
+        cnn, model_name = create_nn(input_shape)
 
     filepath="./model/%s.best.hdf5" %(model_name)
     checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')

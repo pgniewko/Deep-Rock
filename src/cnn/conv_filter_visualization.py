@@ -124,7 +124,7 @@ for filter_index in range(filters_number):
     print('Filter %d processed in %ds' % (filter_index, end_time - start_time))
 
 # we will stich the best n^2 filters on a n x n grid.
-n = 6
+n = 7
 n = min(n, int(np.sqrt(filters_number)))
 n = min(n, int(np.sqrt(len(kept_filters))))
 
