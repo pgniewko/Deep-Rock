@@ -114,25 +114,25 @@ def create_nn_pbc(input_shape_):
     model = Sequential()
 
     #Layer No. 0
-    model.add(PeriodicPadding2D(padding=3, input_shape=input_shape_,))
-    
+    model.add(PeriodicPadding2D(padding=1, input_shape=input_shape_,))
+
     #Layer No. 1
-    model.add(Conv2D(128, 
-                     kernel_size=(7, 7),
+    model.add(Conv2D(64, 
+                     kernel_size=(3, 3),
                      padding='valid',
                      activation='relu'))
-    model.add(PeriodicPadding2D(padding=2))
+    model.add(PeriodicPadding2D(padding=1))
 
     # Layer No. 2
     model.add(Conv2D(128, 
-                     kernel_size=(5, 5),
+                     kernel_size=(3, 3),
                      padding='valid',
                      activation='relu'))
-    model.add(PeriodicPadding2D(padding=2))
+    model.add(PeriodicPadding2D(padding=1))
    
     # Layer No. 3 
     model.add(Conv2D(256, 
-                     kernel_size=(5, 5),
+                     kernel_size=(3, 3),
                      padding='valid',
                      activation='relu'))
     model.add(AveragePooling2D(pool_size=(2, 2)))
