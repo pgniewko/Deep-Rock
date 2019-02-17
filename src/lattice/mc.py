@@ -98,12 +98,16 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
         colors = ['yellow','blue','green']
     else:
         colors = ['yellow','blue']
+#        colors = ['black','white']
 
     cmap_name = 'my_list'
     cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=3)
     fig, ax = plt.subplots()
     i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation='nearest')
 
+    plt.setp(ax.get_xticklabels(), visible=False)
+    plt.setp(ax.get_yticklabels(), visible=False)
+    ax.tick_params(axis='both', which='both', length=0)
     plot_out = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".png"
     plt.savefig(plot_out)
     
