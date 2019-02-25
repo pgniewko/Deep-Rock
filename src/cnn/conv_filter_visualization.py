@@ -95,8 +95,6 @@ if __name__ == "__main__":
         else:
             input_img_data = 1.0*np.random.randint(2, size=(1, img_width, img_height, 1))
     
-
-
         # we run gradient ascent for n_max=40 steps
         for i in range(40):
             loss_value, grads_value = iterate([input_img_data])
@@ -110,12 +108,13 @@ if __name__ == "__main__":
         # decode the resulting input image
         if loss_value > 0:
             img = deprocess_image(input_img_data[0])
+            save_img('./vis/%s_filter_%d.png' % (layer_name, filter_index), img)
             kept_filters.append((img, loss_value))
         end_time = time.time()
         print('Filter %d processed in %ds' % (filter_index, end_time - start_time))
 
     # we will stich the best n^2 filters on a n x n grid.
-    n = 7
+    n = 8
     n = min(n, int(np.sqrt(filters_number)))
     n = min(n, int(np.sqrt(len(kept_filters))))
 
