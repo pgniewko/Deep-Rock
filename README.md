@@ -5,7 +5,7 @@
 PROJECT DESCRIPTION
 ===================
 This is a small research project, where I explore the application of the Convolutional Neural Network to the problem of predicting mass transport properties, such as permeability or tortuosity, based on the binary image of the sample. 
-Technical details and the results can be found in this  [paper](./paper/Deep_Rock.pdf).    
+Technical details and the results can be found in this [draft](./paper/Deep_Rock.pdf).    
 
 
 GETTING THE CODE
