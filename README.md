@@ -2,8 +2,9 @@
 >The code is under development so make sure you are using the most recent version.
 >We welcome bug reports and PRs but make no guarantees about fixes or responses.
 
-DESCRIPTION
+PROJECT DESCRIPTION
 ==================================================
+For the project description please refer to the following [paper](./paper/Deep_Rock.pdf)
 
 GETTING THE CODE
 ==================================================
@@ -32,7 +33,8 @@ Upon successful termination, the code produces three type of files:
 3. `.out` - file contains one line with two numbers (i) volume fraction and (ii) 1 if the packing percolates, and 0 otherwise
 
 To run 
-* ```run_lb.sh```     
+* ```run_lb.sh``` 
+    * To successfully run the code, the user needs to specify the path to the compiled Palabos LB simulator. This code (`./src/lb/porous-2d.cpp`) can be compiled by executing the `Makefile` (upon change of the variables in the file).
 This script produces `.dat` files that contain the permeability (in lattice units) and tortuosity. This data is later on used to train CNN.      
 
 
@@ -49,9 +51,9 @@ License: BSD 3
 
 REFERENCES
 ==========
-1. []() 
+1. [Deep Rock: fluid transport properties through disordered media with convolutional neural networks](./paper/Deep_Rock.pdf) Pawel Gniewek, 2019 
 
 
 ACKNOWLEDGMENTS
 ===============
-
+Tomasz Konopczynski for help with the Keras implementation of the periodic boundary conditions padding.
