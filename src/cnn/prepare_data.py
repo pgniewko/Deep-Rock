@@ -16,26 +16,22 @@ for line in fin:
     file_1 = pairs[0]
     file_2 = pairs[1]
     file_3 = pairs[2]
- 
-    latt = np.loadtxt(file_1, dtype=np.dtype(int))
-    Lx,Ly = latt.shape
 
-  
+    latt = np.loadtxt(file_1, dtype=np.dtype(int))
+    Lx, Ly = latt.shape
+
     s = ""
-    for i in range(Lx-1,-1,-1):
-        for j in range(Ly-1,-1,-1):
+    for i in range(Lx - 1, -1, -1):
+        for j in range(Ly - 1, -1, -1):
             s += str(latt[i][j]) + " "
     s += "\n"
-    
     fout1.write(s)
-    
-    
-    vals2 = np.loadtxt(file_2, dtype=np.dtype(float)) 
-    vals3 = np.loadtxt(file_3, dtype=np.dtype(float)) 
-    
+
+    vals2 = np.loadtxt(file_2, dtype=np.dtype(float))
+    vals3 = np.loadtxt(file_3, dtype=np.dtype(float))
+
     porosity = vals2[0]
     perc = vals2[1]
     permea = vals3[0]
     tau = vals3[1]
-    fout2.write(str(porosity)+" "+str(perc)+" "+str(permea)+" "+str(tau)+"\n")
-    
+    fout2.write("{} {} {} {}\n".format(porosity, perc, permea, tau))
