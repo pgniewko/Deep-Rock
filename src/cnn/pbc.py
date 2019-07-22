@@ -1,21 +1,23 @@
 from keras.layers import concatenate, Layer, InputSpec
 
+
 def periodic_padding(image, padding=1):
     '''
     Create a periodic padding (wrap) around the image, to emulate periodic boundary conditions
     '''
-    
-    upper_pad = image[:,-padding:,:]
-    lower_pad = image[:,:padding,:]
-    
+
+    upper_pad = image[:, -padding:, :]
+    lower_pad = image[:, :padding, :]
+
     partial_image = concatenate([upper_pad, image, lower_pad], axis=1)
-    
-    left_pad = partial_image[:,:,-padding:]
-    right_pad = partial_image[:,:,:padding]
-    
+
+    left_pad = partial_image[:, :, -padding:]
+    right_pad = partial_image[:, :, :padding]
+
     padded_image = concatenate([left_pad, partial_image, right_pad], axis=2)
-    
+
     return padded_image
+
 
 class PeriodicPadding2D(Layer):
     def __init__(self, padding=1, **kwargs):
