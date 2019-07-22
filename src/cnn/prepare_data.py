@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 #
-# usage:
+# USAGE:
 # ./prepare_data.py FILES_LIST.txt ../../output/CNN/images.txt  ../../output/CNN/values.txt
+
+"""
+TODO
+"""
 
 import sys
 import numpy as np

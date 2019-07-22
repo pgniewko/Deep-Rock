@@ -1,5 +1,4 @@
 #! /bin/bash -x 
-
 LB_PATH="/Users/pawel/Desktop/LB/"
 SF="./src/lb/porous-2d"
 L=64

@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 #
+# Description:
+#
+#
 # Usage:
 # python
 #
@@ -15,12 +18,14 @@ sns.set(style="darkgrid")
 
 
 def kozeny_carman(x, x_c, gamma, C):
+    """ TODO """
     dx = x - x_c
     y = np.log10(C) + gamma * np.log10(dx) + 2.0 * np.log10(x / (1 - x))
     return y
 
 
 def mse(x, logk, x_c, gamma, C):
+    """ TODO """
     N = 0
     mse = 0.0
     for i in range(len(x)):
