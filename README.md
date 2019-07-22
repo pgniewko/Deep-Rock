@@ -30,9 +30,9 @@ USAGE
 Run the Monte Carlo algorithm, and save the configurations in the file. The scripts requires the user to define the path to the `mc.py` scripts, and the path for the output files. Upon successful termination, the code produces three type of files:
 * ```run.sh```        
 Upon successful termination, the code produces three type of files:       
-1. `.bin.txt` - file contains the binary matrix with 1 standing for the occupied site, and 0 for an empty site; file used as an image in CNN training process.          
-2. `.lattice` - file contains the lattice saved in 1 line to be used in LB simulations with Palabos    
-3. `.out` - file contains one line with two numbers (i) volume fraction and (ii) 1 if the packing percolates, and 0 otherwise
+    1. `.bin.txt` - file contains the binary matrix with 1 standing for the occupied site, and 0 for an empty site; file used as an image in CNN training process.          
+    2. `.lattice` - file contains the lattice saved in 1 line to be used in LB simulations with Palabos    
+    3. `.out` - file contains one line with two numbers (i) volume fraction and (ii) 1 if the packing percolates, and 0 otherwise
 
 Sample permeability is calculated with lattice Boltzmann method. In order to perform this calculation run:       
 ```run_lb.sh``` 
