@@ -4,7 +4,7 @@
 
 PROJECT DESCRIPTION
 ===================
-This is a small research project, where I explore the application of the Convolutional Neural Network to the problem of predicting mass transport properties, such as permeability or tortuosity, based on the binary 2D images. 
+(As for 11/11/19, the project is no longer maintained) This is a small research project, where I explore the application of the Convolutional Neural Network to the problem of predicting mass transport properties, such as permeability or tortuosity, based on the binary 2D images. 
 Technical details and the partial results can be found in this tentative [draft](./paper/Deep_Rock.pdf).    
 
 
