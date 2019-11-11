@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def format_axes(ax):
-    ax.set_aspect('equal')
+    ax.set_aspect("equal")
     ax.figure.subplots_adjust(bottom=0, top=1, left=0, right=1)
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
@@ -59,7 +59,13 @@ if __name__ == "__main__":
 
     ax1.streamplot(X, Y, U, V, density=5, arrowsize=0.01, linewidth=lw)
 
-    ax1.imshow(~mask, extent=(0 - 0.5, LX - 0.5, 0 - 0.5, LX - 0.5), alpha=0.45,
-               interpolation='nearest', cmap='gray', aspect='auto')
-    ax1.set_aspect('equal')
+    ax1.imshow(
+        ~mask,
+        extent=(0 - 0.5, LX - 0.5, 0 - 0.5, LX - 0.5),
+        alpha=0.45,
+        interpolation="nearest",
+        cmap="gray",
+        aspect="auto",
+    )
+    ax1.set_aspect("equal")
     plt.show()

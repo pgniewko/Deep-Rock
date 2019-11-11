@@ -90,19 +90,19 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
                 lattice_out[i][j + L] = 1
 
     if labeled_lattice.max() == 2:
-        colors = ['yellow', 'blue', 'green']
+        colors = ["yellow", "blue", "green"]
     else:
-        colors = ['yellow', 'blue']
-#        colors = ['black', 'white']
+        colors = ["yellow", "blue"]
+    #        colors = ['black', 'white']
 
-    cmap_name = 'my_list'
+    cmap_name = "my_list"
     cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=3)
     fig, ax = plt.subplots()
-    i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation='nearest')
+    i = ax.imshow(np.flip(labeled_lattice, axis=1), cmap=cm, interpolation="nearest")
 
     plt.setp(ax.get_xticklabels(), visible=False)
     plt.setp(ax.get_yticklabels(), visible=False)
-    ax.tick_params(axis='both', which='both', length=0)
+    ax.tick_params(axis="both", which="both", length=0)
     plot_out = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".png"
     plt.savefig(plot_out)
 
@@ -113,12 +113,12 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
 
     if len(perc_ids) > 0:
         nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".lattice"
-        fo = open(nout, 'w')
+        fo = open(nout, "w")
         fo.write(s)
         fo.close()
 
     nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".out"
-    fo = open(nout, 'w')
+    fo = open(nout, "w")
     if len(perc_ids) > 0:
         fo.write(str(phi) + " 1 \n")
     else:
@@ -126,7 +126,7 @@ def save_lattice(labeled_lattice_, L, k, seed, perc_ids, phi, path_="./LATTICE/"
     fo.close()
 
     nout = path_ + str(L) + "_" + str(k) + "_" + str(seed) + ".bin.txt"
-    fo = open(nout, 'w')
+    fo = open(nout, "w")
     for i in range(L):
         s = ""
         for j in range(L):

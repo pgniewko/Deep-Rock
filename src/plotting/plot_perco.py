@@ -52,7 +52,7 @@ phi_ = np.linspace(0.001, 0.999, 100)
 perc_ = sigmoid(phi_, x0, k0)
 
 fig, ax1 = plt.subplots(1, 1, sharey=True, figsize=(6, 2))
-ax1.plot(phi, perc, 'o')
+ax1.plot(phi, perc, "o")
 ax1.plot(phi_, perc_, "--")
 
 plt.show()
