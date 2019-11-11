@@ -3,17 +3,13 @@
 # USAGE:
 # ./prepare_data.py FILES_LIST.txt ../../output/CNN/images.txt  ../../output/CNN/values.txt
 
-"""
-TODO
-"""
-
 import sys
 import numpy as np
 
-fin = open(sys.argv[1], 'rU')
+fin = open(sys.argv[1], "rU")
 
-fout1 = open(sys.argv[2], 'w')
-fout2 = open(sys.argv[3], 'w')
+fout1 = open(sys.argv[2], "w")
+fout2 = open(sys.argv[3], "w")
 
 for line in fin:
     pairs = line.split()
